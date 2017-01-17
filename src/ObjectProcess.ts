@@ -26,4 +26,54 @@ module feng3d.objectprocess {
         }
         return target;
     }
+
+    export function packAttributes(object: any, onChanged: (object: any, attribute: string, oldValue: any, newValue: any) => void = null) {
+
+        for (var key in object) {
+            packAttribute(object, key, onChanged);
+        }
+    }
+
+    export function packAttribute(object: any, attribute: string, onChanged: (object: any, attribute: string, oldValue: any, newValue: any) => void = null) {
+
+        if (!object.orig) {
+            Object.defineProperty(object, "orig", {
+                value: {},
+                enumerable: false,
+                writable: false
+            });
+        }
+        object.orig[attribute] = object[attribute];
+        Object.defineProperty(object, attribute, {
+            get: function () {
+                return this.orig[attribute];
+            },
+            set: function (value) {
+                if (onChanged) {
+                    onChanged(this, attribute, this.orig[attribute], value);
+                }
+                this.orig[attribute] = value;
+            }
+        });
+    }
+
+    export function unpackAttributes(object: any) {
+
+        if (!object.orig)
+            return;
+        for (var key in object.orig) {
+            unpackAttribute(object, key);
+        }
+        delete object.orig;
+    }
+
+    export function unpackAttribute(object: any, attribute: string) {
+
+        Object.defineProperty(object, attribute, {
+            value: object.orig[attribute],
+            enumerable: true,
+            writable: true
+        });
+    }
+
 }

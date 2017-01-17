@@ -27,6 +27,51 @@ var feng3d;
             return target;
         }
         objectprocess.merge = merge;
+        function packAttributes(object, onChanged = null) {
+            for (var key in object) {
+                packAttribute(object, key, onChanged);
+            }
+        }
+        objectprocess.packAttributes = packAttributes;
+        function packAttribute(object, attribute, onChanged = null) {
+            if (!object.orig) {
+                Object.defineProperty(object, "orig", {
+                    value: {},
+                    enumerable: false,
+                    writable: false
+                });
+            }
+            object.orig[attribute] = object[attribute];
+            Object.defineProperty(object, attribute, {
+                get: function () {
+                    return this.orig[attribute];
+                },
+                set: function (value) {
+                    if (onChanged) {
+                        onChanged(this, attribute, this.orig[attribute], value);
+                    }
+                    this.orig[attribute] = value;
+                }
+            });
+        }
+        objectprocess.packAttribute = packAttribute;
+        function unpackAttributes(object) {
+            if (!object.orig)
+                return;
+            for (var key in object.orig) {
+                unpackAttribute(object, key);
+            }
+            delete object.orig;
+        }
+        objectprocess.unpackAttributes = unpackAttributes;
+        function unpackAttribute(object, attribute) {
+            Object.defineProperty(object, attribute, {
+                value: object.orig[attribute],
+                enumerable: true,
+                writable: true
+            });
+        }
+        objectprocess.unpackAttribute = unpackAttribute;
     })(objectprocess = feng3d.objectprocess || (feng3d.objectprocess = {}));
 })(feng3d || (feng3d = {}));
 function testMerge() {
@@ -49,5 +94,29 @@ class A {
         this.b = 1;
     }
 }
-testMerge();
+// testMerge();
+function testPackAttributes() {
+    var foo = { a: 1, b: 2, c: 3 };
+    console.log("packAttributes");
+    feng3d.objectprocess.packAttributes(foo, onChanged);
+    // foo.a = 1;
+    for (var key in foo) {
+        foo[key] = ~~foo[key] + 1;
+    }
+    console.log("unpackAttributes");
+    feng3d.objectprocess.unpackAttributes(foo);
+    for (var key in foo) {
+        foo[key] = ~~foo[key] + 1;
+    }
+    console.log("packAttributes");
+    feng3d.objectprocess.packAttributes(foo, onChanged);
+    for (var key in foo) {
+        foo[key] = ~~foo[key] + 1;
+    }
+    foo.a;
+}
+function onChanged(object, attribute, oldValue, newValue) {
+    console.log(arguments.callee.name, arguments);
+}
+testPackAttributes();
 //# sourceMappingURL=objectProcess.js.map
