@@ -27,13 +27,13 @@ var feng3d;
             return target;
         }
         objectprocess.merge = merge;
-        function packAttributes(object, onChanged = null) {
+        function watchObject(object, onChanged = null) {
             for (var key in object) {
-                packAttribute(object, key, onChanged);
+                watch(object, key, onChanged);
             }
         }
-        objectprocess.packAttributes = packAttributes;
-        function packAttribute(object, attribute, onChanged = null) {
+        objectprocess.watchObject = watchObject;
+        function watch(object, attribute, onChanged = null) {
             if (!object.orig) {
                 Object.defineProperty(object, "orig", {
                     value: {},
@@ -54,24 +54,24 @@ var feng3d;
                 }
             });
         }
-        objectprocess.packAttribute = packAttribute;
-        function unpackAttributes(object) {
+        objectprocess.watch = watch;
+        function unwatchObject(object) {
             if (!object.orig)
                 return;
             for (var key in object.orig) {
-                unpackAttribute(object, key);
+                unwatch(object, key);
             }
             delete object.orig;
         }
-        objectprocess.unpackAttributes = unpackAttributes;
-        function unpackAttribute(object, attribute) {
+        objectprocess.unwatchObject = unwatchObject;
+        function unwatch(object, attribute) {
             Object.defineProperty(object, attribute, {
                 value: object.orig[attribute],
                 enumerable: true,
                 writable: true
             });
         }
-        objectprocess.unpackAttribute = unpackAttribute;
+        objectprocess.unwatch = unwatch;
     })(objectprocess = feng3d.objectprocess || (feng3d.objectprocess = {}));
 })(feng3d || (feng3d = {}));
 function testMerge() {
@@ -95,21 +95,21 @@ class A {
     }
 }
 // testMerge();
-function testPackAttributes() {
+function testWatchObject() {
     var foo = { a: 1, b: 2, c: 3 };
-    console.log("packAttributes");
-    feng3d.objectprocess.packAttributes(foo, onChanged);
+    console.log("watchObject");
+    feng3d.objectprocess.watchObject(foo, onChanged);
     // foo.a = 1;
     for (var key in foo) {
         foo[key] = ~~foo[key] + 1;
     }
-    console.log("unpackAttributes");
-    feng3d.objectprocess.unpackAttributes(foo);
+    console.log("unwatchObject");
+    feng3d.objectprocess.unwatchObject(foo);
     for (var key in foo) {
         foo[key] = ~~foo[key] + 1;
     }
-    console.log("packAttributes");
-    feng3d.objectprocess.packAttributes(foo, onChanged);
+    console.log("watchObject");
+    feng3d.objectprocess.watchObject(foo, onChanged);
     for (var key in foo) {
         foo[key] = ~~foo[key] + 1;
     }
@@ -118,5 +118,5 @@ function testPackAttributes() {
 function onChanged(object, attribute, oldValue, newValue) {
     console.log(arguments.callee.name, arguments);
 }
-testPackAttributes();
+testWatchObject();
 //# sourceMappingURL=objectProcess.js.map

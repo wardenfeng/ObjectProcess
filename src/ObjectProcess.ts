@@ -27,14 +27,14 @@ module feng3d.objectprocess {
         return target;
     }
 
-    export function packAttributes(object: any, onChanged: (object: any, attribute: string, oldValue: any, newValue: any) => void = null) {
+    export function watchObject(object: any, onChanged: (object: any, attribute: string, oldValue: any, newValue: any) => void = null) {
 
         for (var key in object) {
-            packAttribute(object, key, onChanged);
+            watch(object, key, onChanged);
         }
     }
 
-    export function packAttribute(object: any, attribute: string, onChanged: (object: any, attribute: string, oldValue: any, newValue: any) => void = null) {
+    export function watch(object: any, attribute: string, onChanged: (object: any, attribute: string, oldValue: any, newValue: any) => void = null) {
 
         if (!object.orig) {
             Object.defineProperty(object, "orig", {
@@ -57,17 +57,17 @@ module feng3d.objectprocess {
         });
     }
 
-    export function unpackAttributes(object: any) {
+    export function unwatchObject(object: any) {
 
         if (!object.orig)
             return;
         for (var key in object.orig) {
-            unpackAttribute(object, key);
+            unwatch(object, key);
         }
         delete object.orig;
     }
 
-    export function unpackAttribute(object: any, attribute: string) {
+    export function unwatch(object: any, attribute: string) {
 
         Object.defineProperty(object, attribute, {
             value: object.orig[attribute],
@@ -75,5 +75,4 @@ module feng3d.objectprocess {
             writable: true
         });
     }
-
 }
