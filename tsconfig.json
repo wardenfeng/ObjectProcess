@@ -4,11 +4,11 @@
         "noImplicitAny": false,
         "sourceMap": true,
         "declaration": true,
-        "outFile": "out/objectProcess.js"
+        "outFile": "out/objectExtension.js"
     },
     "files": [ //注：如果有继承关系的，父类必须排在子类前面
         //
-        "src/ObjectProcess.ts",
+        "src/ObjectExtension.ts",
         //
         "tests/test.ts"
     ]
